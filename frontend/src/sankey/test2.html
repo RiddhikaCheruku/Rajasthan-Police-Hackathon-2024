@@ -1,0 +1,55 @@
+<html>
+<body>
+ <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+ <script src="jquery-3.6.4.min.js"></script>
+ <script src="jquery.csv.min.js"></script>
+
+<div id="scatter_top_x" style="width: 9000px; height: 9000px;"></div>
+
+<script type="text/javaScript">
+
+google.charts.load('current', {'packages':['scatter']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+    var queryOptions = {
+        // Define the CSV data columns
+        csvColumns: ['string', 'string', 'number'],
+        // This should be false if your CSV file doesn't have a header 
+        csvHasHeader: true
+    }
+    
+    // Create the query giving the path and name of the CSV file
+    var query = new google.visualization.Query('ethereum_transactions.csv', queryOptions);
+    query.setQuery("SELECT from1,to,value ");
+    query.send(handleQueryResponse);
+}
+
+function handleQueryResponse(response) {
+    if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+    }
+    var colors = ['#a6cee3', '#b2df8a', '#fb9a99', '#fdbf6f',
+              '#cab2d6', '#ffff99', '#1f78b4', '#33a02c'];
+  
+    var options = {
+    width: 1500,
+    height: 1000,
+    chart: {
+      title: 'Scatter Diagram',
+      
+    },
+    axes: {
+      x: {
+        0: {side: 'top'}
+      }
+    }
+  };
+  var data = response.getDataTable();
+  var chart = new google.charts.Scatter(document.getElementById('scatter_top_x'));
+  chart.draw(data, google.charts.Scatter.convertOptions(options));
+}
+</script>
+</body>
+</html>

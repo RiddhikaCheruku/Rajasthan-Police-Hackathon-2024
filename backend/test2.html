@@ -1,0 +1,134 @@
+<html>
+  <head>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <script src="jquery-3.6.4.min.js"></script>
+    <script src="jquery.csv.min.js"></script>
+  </head>
+  <body>
+    <div id="sankey_multiple" style="width: 900px; height: 400px"></div>
+    <div id="scatter_top_x" style="width: 900px; height: 400px"></div>
+
+    <script type="text/javascript">
+      google.charts.load("current", { packages: ["sankey", "corechart"] });
+      google.charts.setOnLoadCallback(drawCharts);
+
+      function drawCharts() {
+        drawSankeyChart();
+        drawScatterChart();
+      }
+
+      function drawSankeyChart() {
+        var queryOptions = {
+          csvColumns: ["string", "string", "number"],
+          csvHasHeader: true,
+        };
+        var query = new google.visualization.Query(
+          "ethereum_transactions.csv",
+          queryOptions
+        );
+        query.setQuery("SELECT from1,to,value ");
+        query.send(handleSankeyQueryResponse);
+      }
+
+      function handleSankeyQueryResponse(response) {
+        if (response.isError()) {
+          alert(
+            "Error in Sankey query: " +
+              response.getMessage() +
+              " " +
+              response.getDetailedMessage()
+          );
+          return;
+        }
+
+        var colors = [
+          "#a6cee3",
+          "#b2df8a",
+          "#fb9a99",
+          "#fdbf6f",
+          "#cab2d6",
+          "#ffff99",
+          "#1f78b4",
+          "#33a02c",
+        ];
+
+        var options = {
+          title: "Sankey Chart Title",
+          height: 400,
+          sankey: {
+            node: {
+              colors: colors,
+            },
+            link: {
+              colorMode: "gradient",
+              colors: colors,
+            },
+          },
+        };
+
+        var data = response.getDataTable();
+        
+        var chart = new google.visualization.Sankey(
+          document.getElementById("sankey_multiple")
+        );
+        chart.draw(data, options);
+      }
+
+      function drawScatterChart() {
+        var queryOptions = {
+          csvColumns: ["string", "string", "number"],
+          csvHasHeader: true,
+        };
+
+        var query = new google.visualization.Query(
+          "ethereum_transactions.csv",
+          queryOptions
+        );
+        query.setQuery("SELECT from1,to,value ");
+        query.send(handleQueryResponse);
+      }
+      function handleScatterQueryResponse(response) {
+        if (response.isError()) {
+          alert(
+            "Error in query: " +
+              response.getMessage() +
+              " " +
+              response.getDetailedMessage()
+          );
+          return;
+        }
+        var colors = [
+          "#a6cee3",
+          "#b2df8a",
+          "#fb9a99",
+          "#fdbf6f",
+          "#cab2d6",
+          "#ffff99",
+          "#1f78b4",
+          "#33a02c",
+        ];
+
+        var options = {
+          width: 1500,
+          height: 1000,
+          chart: {
+            title: "Scatter Diagram",
+          },
+          axes: {
+            x: {
+              0: { side: "top" },
+            },
+          },
+        };
+        var data = response.getDataTable();
+        var chart = new google.charts.Scatter(
+          document.getElementById("scatter_top_x")
+        );
+        chart.draw(data, google.charts.Scatter.convertOptions(options));
+      }
+    </script>
+  </body>
+</html>
